@@ -1,4 +1,3 @@
-import React from "react";
 import logo from "../assets/judiciary-logo.jfif";
 import { useSelector } from "react-redux";
 import type { RootState } from "../store/store";
