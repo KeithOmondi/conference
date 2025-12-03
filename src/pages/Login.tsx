@@ -18,10 +18,14 @@ const Login: React.FC = () => {
     document.getElementById("pjNumber")?.focus();
   }, []);
 
-  // Redirect immediately after successful login
+  // Redirect based on role immediately after successful login
   useEffect(() => {
     if (user) {
-      navigate("/", { replace: true });
+      if (user.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     }
   }, [user, navigate]);
 

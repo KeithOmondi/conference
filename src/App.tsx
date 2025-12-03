@@ -4,8 +4,15 @@ import Schedule from "./pages/SchedulePage";
 import Messages from "./pages/MessagesPage";
 import Settings from "./pages/SettingsPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import MobileLayout from "./layout/MobileLayout";
 import PrivateRoute from "./components/PrivateRoute";
+
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import AdminLayout from "./layout/AdminLayout";
+import AdminPresenters from "./pages/Admin/AdminPresenters";
+import AdminProgramme from "./pages/Admin/AdminProgramme";
+import AdminUsers from "./pages/Admin/AdminUsers";
 
 export default function App() {
   return (
@@ -28,6 +35,22 @@ export default function App() {
                 </Routes>
               </MobileLayout>
             </PrivateRoute>
+          }
+        />
+
+        {/* Admin Dashboard */}
+        <Route
+          path="/admin/*"
+          element={
+            <AdminProtectedRoute>
+              <AdminLayout>
+                <Routes>
+                  <Route path="presenters" element={<AdminPresenters />} />
+                  <Route path="programme" element={<AdminProgramme />} />
+                  <Route path="users" element={<AdminUsers />} />
+                </Routes>
+              </AdminLayout>
+            </AdminProtectedRoute>
           }
         />
       </Routes>
