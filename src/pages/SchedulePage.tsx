@@ -1,3 +1,4 @@
+// src/pages/SchedulePage.tsx
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store/store";
@@ -7,14 +8,13 @@ import {
   type ProgrammeDay,
   type ProgrammeItem,
 } from "../store/slices/programSlice";
+import { parse, format } from "date-fns";
 
 const SchedulePage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    data: days,
-    loading,
-    error,
-  } = useSelector((state: RootState) => selectProgramme(state));
+  const { data: days, loading, error } = useSelector((state: RootState) =>
+    selectProgramme(state)
+  );
 
   // Fetch programme on mount
   useEffect(() => {
@@ -24,27 +24,19 @@ const SchedulePage = () => {
   if (loading) return <p>Loading programme...</p>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
-  // Helper: Format day title (optional)
+  // Helper: Format day title safely
   const formatDayTitle = (day: ProgrammeDay, index: number) => {
-    const dayNames = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
-    const dateObj = new Date(day.date);
-    const dayName = dayNames[dateObj.getDay()] || "";
-    return `Day ${index + 1}: ${dayName}, ${dateObj.toLocaleDateString(
-      "en-GB",
-      {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }
-    )}`;
+    // Remove weekday and ordinal suffixes ("th", "st", etc.) from the date
+    const cleanedDate = day.date
+      .replace(/^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday),\s*/, "")
+      .replace(/(\d+)(st|nd|rd|th)/, "$1");
+
+    // Parse into Date object
+    const dateObj = parse(cleanedDate, "d MMMM yyyy", new Date());
+
+    // Format the date
+    const dayName = format(dateObj, "EEEE"); // Full day name
+    return `Day ${index + 1}: ${dayName}, ${format(dateObj, "d MMMM yyyy")}`;
   };
 
   return (

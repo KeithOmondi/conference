@@ -17,7 +17,6 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 relative flex flex-col">
-
       {/* Watermark */}
       <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
@@ -32,7 +31,6 @@ const HomePage = () => {
 
       {/* Scrollable content */}
       <div className="flex-1 w-full overflow-y-auto p-4">
-
         {/* WiFi bar */}
         <div className="w-full flex justify-end items-center mb-4 text-sm text-gray-600 space-x-2 relative z-10">
           <span>WiFi: JudicialNet</span>
@@ -41,12 +39,15 @@ const HomePage = () => {
         </div>
 
         {/* User Card */}
-        <div className="w-full max-w-md bg-white rounded-xl shadow-lg border-2 border-[#005A2B] 
-                        p-6 flex flex-col items-center mb-6 relative z-10 mx-auto">
-
+        <div
+          className="w-full max-w-md bg-white rounded-xl shadow-lg border-2 border-[#005A2B] 
+                        p-6 flex flex-col items-center mb-6 relative z-10 mx-auto"
+        >
           {/* Avatar */}
-          <div className="w-20 h-20 bg-[#005A2B]/20 rounded-full flex items-center justify-center 
-                          text-2xl font-bold mb-3 text-[#005A2B]">
+          <div
+            className="w-20 h-20 bg-[#005A2B]/20 rounded-full flex items-center justify-center 
+                          text-2xl font-bold mb-3 text-[#005A2B]"
+          >
             {firstLetter}
           </div>
 
