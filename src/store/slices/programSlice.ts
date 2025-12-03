@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../../api/axios";
 import type { RootState } from "../store";
 
@@ -33,73 +33,79 @@ const initialState: ProgrammeState = {
 
 // -------------------- ASYNC THUNKS --------------------
 
-// Get all programme days
+// Fetch all programme days
 export const fetchProgramme = createAsyncThunk<
   ProgrammeDay[],
   void,
   { rejectValue: string }
 >("programme/fetchProgramme", async (_, thunkAPI) => {
   try {
-    const res = await axios.get("/programs/get");
-    return res.data.data;
+    return (await axios.get("/programs/get")).data.data;
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error?.response?.data?.message || "Failed to fetch programme");
+    return thunkAPI.rejectWithValue(
+      error?.response?.data?.message || "Failed to fetch programme"
+    );
   }
 });
 
-// Get a programme day by ID
+// Fetch programme day by ID
 export const fetchProgrammeById = createAsyncThunk<
   ProgrammeDay,
   string,
   { rejectValue: string }
 >("programme/fetchProgrammeById", async (id, thunkAPI) => {
   try {
-    const res = await axios.get(`/programs/get/${id}`);
-    return res.data.data;
+    return (await axios.get(`/programs/get/${id}`)).data.data;
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error?.response?.data?.message || "Failed to fetch programme day");
+    return thunkAPI.rejectWithValue(
+      error?.response?.data?.message || "Failed to fetch programme day"
+    );
   }
 });
 
-// Create a new programme day
+// Create new programme day
 export const createProgrammeDay = createAsyncThunk<
   ProgrammeDay,
   Partial<ProgrammeDay>,
   { rejectValue: string }
 >("programme/createProgrammeDay", async (payload, thunkAPI) => {
   try {
-    const res = await axios.post("/programs/create", payload);
-    return res.data.data;
+    return (await axios.post("/programs/create", payload)).data.data;
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error?.response?.data?.message || "Failed to create programme day");
+    return thunkAPI.rejectWithValue(
+      error?.response?.data?.message || "Failed to create programme day"
+    );
   }
 });
 
-// Update a programme day
+// Update programme day
 export const updateProgrammeDay = createAsyncThunk<
   ProgrammeDay,
   { id: string; data: Partial<ProgrammeDay> },
   { rejectValue: string }
 >("programme/updateProgrammeDay", async ({ id, data }, thunkAPI) => {
   try {
-    const res = await axios.put(`/programs/update/${id}`, data);
-    return res.data.data;
+    return (await axios.put(`/programs/update/${id}`, data)).data.data;
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error?.response?.data?.message || "Failed to update programme day");
+    return thunkAPI.rejectWithValue(
+      error?.response?.data?.message || "Failed to update programme day"
+    );
   }
 });
 
-// Delete a programme day
+// Delete programme day
 export const deleteProgrammeDay = createAsyncThunk<
   string,
   string,
   { rejectValue: string }
 >("programme/deleteProgrammeDay", async (id, thunkAPI) => {
   try {
-    const res = await axios.delete(`/programs/delete/${id}`);
+    await axios.delete(`/programs/delete/${id}`);
     return id;
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error?.response?.data?.message || "Failed to delete programme day");
+    return thunkAPI.rejectWithValue(
+      error?.response?.data?.message || "Failed to delete programme day"
+    );
   }
 });
 
@@ -110,12 +116,12 @@ const programmeSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    // Fetch all
+    // ---------------- FETCH ALL ----------------
     builder.addCase(fetchProgramme.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
-    builder.addCase(fetchProgramme.fulfilled, (state, action: PayloadAction<ProgrammeDay[]>) => {
+    builder.addCase(fetchProgramme.fulfilled, (state, action) => {
       state.loading = false;
       state.data = action.payload;
     });
@@ -124,14 +130,14 @@ const programmeSlice = createSlice({
       state.error = action.payload || "Something went wrong";
     });
 
-    // Fetch by ID
+    // ---------------- FETCH BY ID ----------------
     builder.addCase(fetchProgrammeById.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
-    builder.addCase(fetchProgrammeById.fulfilled, (state, action: PayloadAction<ProgrammeDay>) => {
+    builder.addCase(fetchProgrammeById.fulfilled, (state, action) => {
       state.loading = false;
-      const index = state.data.findIndex(d => d._id === action.payload._id);
+      const index = state.data.findIndex((d) => d._id === action.payload._id);
       if (index !== -1) state.data[index] = action.payload;
       else state.data.push(action.payload);
     });
@@ -140,12 +146,12 @@ const programmeSlice = createSlice({
       state.error = action.payload || "Something went wrong";
     });
 
-    // Create
+    // ---------------- CREATE ----------------
     builder.addCase(createProgrammeDay.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
-    builder.addCase(createProgrammeDay.fulfilled, (state, action: PayloadAction<ProgrammeDay>) => {
+    builder.addCase(createProgrammeDay.fulfilled, (state, action) => {
       state.loading = false;
       state.data.push(action.payload);
     });
@@ -154,14 +160,14 @@ const programmeSlice = createSlice({
       state.error = action.payload || "Something went wrong";
     });
 
-    // Update
+    // ---------------- UPDATE ----------------
     builder.addCase(updateProgrammeDay.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
-    builder.addCase(updateProgrammeDay.fulfilled, (state, action: PayloadAction<ProgrammeDay>) => {
+    builder.addCase(updateProgrammeDay.fulfilled, (state, action) => {
       state.loading = false;
-      const index = state.data.findIndex(d => d._id === action.payload._id);
+      const index = state.data.findIndex((d) => d._id === action.payload._id);
       if (index !== -1) state.data[index] = action.payload;
     });
     builder.addCase(updateProgrammeDay.rejected, (state, action) => {
@@ -169,14 +175,14 @@ const programmeSlice = createSlice({
       state.error = action.payload || "Something went wrong";
     });
 
-    // Delete
+    // ---------------- DELETE ----------------
     builder.addCase(deleteProgrammeDay.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
-    builder.addCase(deleteProgrammeDay.fulfilled, (state, action: PayloadAction<string>) => {
+    builder.addCase(deleteProgrammeDay.fulfilled, (state, action) => {
       state.loading = false;
-      state.data = state.data.filter(d => d._id !== action.payload);
+      state.data = state.data.filter((d) => d._id !== action.payload);
     });
     builder.addCase(deleteProgrammeDay.rejected, (state, action) => {
       state.loading = false;
@@ -186,9 +192,7 @@ const programmeSlice = createSlice({
 });
 
 // -------------------- SELECTOR --------------------
-
 export const selectProgramme = (state: RootState) => state.programme;
 
 // -------------------- EXPORT --------------------
-
 export default programmeSlice.reducer;
