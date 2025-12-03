@@ -5,26 +5,29 @@ import Messages from "./pages/MessagesPage";
 import Settings from "./pages/SettingsPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MobileLayout from "./layout/MobileLayout";
+import PrivateRoute from "./components/PrivateRoute";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public pages */}
+        {/* Public route */}
         <Route path="/login" element={<Login />} />
 
-        {/* Mobile layout wrapper for app pages */}
+        {/* Protected mobile app */}
         <Route
           path="/*"
           element={
-            <MobileLayout>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/schedule" element={<Schedule />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/settings" element={<Settings />} />
-              </Routes>
-            </MobileLayout>
+            <PrivateRoute>
+              <MobileLayout>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/schedule" element={<Schedule />} />
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Routes>
+              </MobileLayout>
+            </PrivateRoute>
           }
         />
       </Routes>

@@ -5,5 +5,6 @@ import type { JSX } from "react";
 export default function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user } = useAppSelector((state) => state.auth);
 
-  return user ? children : <Navigate to="/" replace />;
+  // If not logged in, redirect to login page
+  return user ? children : <Navigate to="/login" replace />;
 }

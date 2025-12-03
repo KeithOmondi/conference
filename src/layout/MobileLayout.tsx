@@ -1,80 +1,78 @@
-import React, { type ReactNode } from "react";
+import { type ReactNode, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../store/slices/authSlice";
+import type { AppDispatch } from "../store/store";
 
 interface Props {
-  children: ReactNode;
+children: ReactNode;
 }
 
 const MobileLayout: React.FC<Props> = ({ children }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+const navigate = useNavigate();
+const location = useLocation();
+const dispatch = useDispatch<AppDispatch>();
 
-  const activeTab = () => {
-    if (location.pathname.startsWith("/schedule")) return "schedule";
-    if (location.pathname.startsWith("/messages")) return "messages";
-    if (location.pathname.startsWith("/settings")) return "settings";
-    return "home";
-  };
+// Determine active tab
+const activeTab = useMemo(() => {
+if (location.pathname.startsWith("/schedule")) return "schedule";
+if (location.pathname.startsWith("/presentation")) return "presentation";
+if (location.pathname.startsWith("/settings")) return "settings";
+return "home";
+}, [location.pathname]);
 
-  return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start relative">
-      {/* Header */}
-      <header className="w-full bg-blue-600 text-white p-4 shadow-md flex justify-between items-center z-10 relative">
-        <h1 className="text-lg font-bold">Judges Conference</h1>
-        <button className="bg-blue-500 px-3 py-1 rounded-md hover:bg-blue-400">
-          Profile
-        </button>
-      </header>
+// Bottom nav items
+const navItems = [
+{ label: "Home", icon: "home", path: "/", key: "home" },
+{ label: "Program", icon: "event", path: "/schedule", key: "schedule" },
+{ label: "Presentation", icon: "book", path: "/presentation", key: "presentation" },
+{ label: "Bios", icon: "person", path: "/settings", key: "settings" },
+];
 
-      {/* Scrollable page content */}
-      <main className="flex-1 w-full max-w-md overflow-y-auto p-4">
-        {children}
-      </main>
+// Handle logout
+const handleLogout = () => {
+dispatch(logoutUser());
+navigate("/login"); // redirect to login page
+};
 
-      {/* Bottom Navigation */}
-      <nav className="w-full h-16 bg-white shadow-inner p-2 flex justify-around items-center fixed bottom-0 left-0 max-w-md z-20">
-        <button
-          className={`flex flex-col items-center ${
-            activeTab() === "home" ? "text-blue-600" : "text-gray-500"
-          }`}
-          onClick={() => navigate("/")}
-        >
-          <span className="material-icons">home</span>
-          <span className="text-xs">Home</span>
-        </button>
+return ( <div className="min-h-screen bg-gray-100 flex flex-col items-center relative max-w-md mx-auto">
+{/* Header */} <header className="w-full bg-[#005A2B] text-white p-4 shadow-md flex justify-between items-center z-10"> <h1 className="text-lg font-bold leading-tight">
+ANNUAL HIGH COURT HUMAN RIGHTS SUMMIT 2025 </h1>
 
-        <button
-          className={`flex flex-col items-center ${
-            activeTab() === "schedule" ? "text-blue-600" : "text-gray-500"
-          }`}
-          onClick={() => navigate("/schedule")}
-        >
-          <span className="material-icons">calendar_today</span>
-          <span className="text-xs">Schedule</span>
-        </button>
 
-        <button
-          className={`flex flex-col items-center ${
-            activeTab() === "messages" ? "text-blue-600" : "text-gray-500"
-          }`}
-          onClick={() => navigate("/messages")}
-        >
-          <span className="material-icons">chat</span>
-          <span className="text-xs">Messages</span>
-        </button>
+    <button
+      className="bg-[#C6A64F] px-3 py-1 rounded-md hover:bg-[#ad9043] transition"
+      aria-label="Logout"
+      onClick={handleLogout}
+    >
+      Logout
+    </button>
+  </header>
 
-        <button
-          className={`flex flex-col items-center ${
-            activeTab() === "settings" ? "text-blue-600" : "text-gray-500"
-          }`}
-          onClick={() => navigate("/settings")}
-        >
-          <span className="material-icons">settings</span>
-          <span className="text-xs">Settings</span>
-        </button>
-      </nav>
-    </div>
-  );
+  {/* Content */}
+  <main className="flex-1 w-full overflow-y-auto p-4 pb-24">
+    {children}
+  </main>
+
+  {/* Bottom Navigation */}
+  <nav className="w-full h-16 bg-white shadow-inner flex justify-around items-center 
+                  fixed bottom-0 left-1/2 -translate-x-1/2 max-w-md z-20 p-2">
+    {navItems.map((item) => (
+      <button
+        key={item.key}
+        onClick={() => navigate(item.path)}
+        className={`flex flex-col items-center justify-center transition-colors
+          ${activeTab === item.key ? "text-[#005A2B]" : "text-gray-500"}`}
+      >
+        <span className="material-icons">{item.icon}</span>
+        <span className="text-xs">{item.label}</span>
+      </button>
+    ))}
+  </nav>
+</div>
+
+
+);
 };
 
 export default MobileLayout;
