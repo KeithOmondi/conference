@@ -45,8 +45,8 @@ const Login: React.FC = () => {
         {/* HEADER */}
         <div className="relative p-10 pt-16 bg-white overflow-hidden">
           <div className="relative z-10 text-center">
-            <h1 className="text-6xl font-black text-[#005A2B] leading-none tracking-tight mb-3">
-              WELCOME
+            <h1 className="text-3xl font-black text-[#005A2B] leading-none tracking-tight mb-3">
+              ANNUAL HIGH COURT HUMAN RIGHTS SUMMIT 2025
             </h1>
             <p className="text-3xl font-serif italic text-[#C6A64F] mb-6">
               A Message from the Principal Judge

@@ -1,13 +1,31 @@
+import React from "react";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../store/slices/authSlice";
+import MessagesBook from "./MessagesBook"
 
+const MessagesPage: React.FC = () => {
+  const { user } = useSelector(selectAuth);
 
-const MessagesPage = () => {
+  // No logged-in user
+  if (!user) {
+    return (
+      <div className="p-6 text-center text-red-600 font-semibold">
+        No user is logged in.
+      </div>
+    );
+  }
+
+  // Map Redux user to MessagesBook format
+  const mappedUser = {
+    name: user.name,
+    title: user.role === "judge" ? "Presiding Judge" : "Administrator",
+    image:
+      "https://res.cloudinary.com/drls2cpnu/image/upload/v1764746866/Justice_e548ka.jpg",
+  };
+
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-bold">Messages</h2>
-      <ul className="bg-white shadow rounded-lg p-4 space-y-2">
-        <li>John: Meeting at 10 AM</li>
-        <li>Mary: Presentation slides ready</li>
-      </ul>
+    <div className="w-full flex justify-center">
+      <MessagesBook user={mappedUser} />
     </div>
   );
 };

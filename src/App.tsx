@@ -1,7 +1,6 @@
 import Home from "./pages/HomePage";
 import Login from "./pages/Login";
 import Schedule from "./pages/SchedulePage";
-import Messages from "./pages/MessagesPage";
 import Settings from "./pages/SettingsPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -13,6 +12,7 @@ import AdminLayout from "./layout/AdminLayout";
 import AdminPresenters from "./pages/Admin/AdminPresenters";
 import AdminProgramme from "./pages/Admin/AdminProgramme";
 import AdminUsers from "./pages/Admin/AdminUsers";
+import MessagesPage from "./pages/MessagesPage";
 
 export default function App() {
   return (
@@ -30,7 +30,7 @@ export default function App() {
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/schedule" element={<Schedule />} />
-                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/presentation" element={<MessagesPage />} />
                   <Route path="/settings" element={<Settings />} />
                 </Routes>
               </MobileLayout>
