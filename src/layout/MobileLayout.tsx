@@ -25,7 +25,12 @@ const MobileLayout: React.FC<Props> = ({ children }) => {
   const navItems = [
     { label: "Home", icon: "home", path: "/", key: "home" },
     { label: "Program", icon: "event", path: "/schedule", key: "schedule" },
-    { label: "Presentation", icon: "book", path: "/presentation", key: "presentation" },
+    {
+      label: "Presentation",
+      icon: "book",
+      path: "/presentation",
+      key: "presentation",
+    },
     { label: "Bios", icon: "person", path: "/settings", key: "settings" },
   ];
 
@@ -38,7 +43,7 @@ const MobileLayout: React.FC<Props> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center relative max-w-md mx-auto">
       {/* Header */}
-      <header className="w-full bg-[#005A2B] text-white p-4 shadow-md flex justify-between items-center z-10">
+      <header className="w-full bg-[#005A2B] text-white p-4 shadow-md flex justify-between items-center z-30 sticky top-0">
         <h1 className="text-lg font-bold leading-tight">
           ANNUAL HIGH COURT HUMAN RIGHTS SUMMIT 2025
         </h1>
@@ -57,8 +62,10 @@ const MobileLayout: React.FC<Props> = ({ children }) => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="w-full h-16 bg-white shadow-inner flex justify-around items-center 
-                      fixed bottom-0 left-1/2 -translate-x-1/2 max-w-md z-20 p-2">
+      <nav
+        className="w-full h-16 bg-white shadow-inner flex justify-around items-center 
+                      fixed bottom-0 left-1/2 -translate-x-1/2 max-w-md z-20 p-2"
+      >
         {navItems.map((item) => (
           <button
             key={item.key}

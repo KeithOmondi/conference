@@ -13,6 +13,7 @@ import AdminPresenters from "./pages/Admin/AdminPresenters";
 import AdminProgramme from "./pages/Admin/AdminProgramme";
 import AdminUsers from "./pages/Admin/AdminUsers";
 import MessagesPage from "./pages/MessagesPage";
+import AdminPresentations from "./pages/Admin/AdminPresentations";
 
 export default function App() {
   return (
@@ -46,6 +47,7 @@ export default function App() {
               <AdminLayout>
                 <Routes>
                   <Route path="presenters" element={<AdminPresenters />} />
+                  <Route path="presentions" element={<AdminPresentations/>} />
                   <Route path="programme" element={<AdminProgramme />} />
                   <Route path="users" element={<AdminUsers />} />
                 </Routes>
