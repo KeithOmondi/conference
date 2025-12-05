@@ -1,7 +1,6 @@
 import {
   createSlice,
   createAsyncThunk,
-  type PayloadAction,
   createSelector,
 } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
@@ -89,25 +88,21 @@ export const fetchPresentationById = createAsyncThunk<
   }
 });
 
-// CREATE — Upload presentation via Cloudinary
+// CREATE
 export const createPresentation = createAsyncThunk<
   IPresentation,
   { title: string; description?: string; presenterId: string; file: File },
   { rejectValue: string }
 >("presentations/create", async ({ title, description, presenterId, file }, { rejectWithValue }) => {
   try {
-    // Prepare FormData
     const formData = new FormData();
     formData.append("file", file);
     formData.append("title", title);
     formData.append("description", description || "");
     formData.append("presenterId", presenterId);
 
-    // Send to backend
     const { data } = await api.post("/presentations/create", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
 
     return data.presentation;
@@ -116,7 +111,7 @@ export const createPresentation = createAsyncThunk<
   }
 });
 
-
+// UPDATE
 export const updatePresentation = createAsyncThunk<
   IPresentation,
   { id: string; updates: Partial<IPresentation> },
@@ -130,6 +125,7 @@ export const updatePresentation = createAsyncThunk<
   }
 });
 
+// DELETE
 export const deletePresentation = createAsyncThunk<
   string,
   string,
@@ -165,13 +161,10 @@ const presentationsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        fetchAllPresentations.fulfilled,
-        (state, action: PayloadAction<IPresentation[]>) => {
-          state.loading = false;
-          state.presentations = action.payload;
-        }
-      )
+      .addCase(fetchAllPresentations.fulfilled, (state, action) => {
+        state.loading = false;
+        state.presentations = action.payload;
+      })
       .addCase(fetchAllPresentations.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Failed to fetch presentations";
@@ -182,16 +175,13 @@ const presentationsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        fetchMyPresentations.fulfilled,
-        (state, action: PayloadAction<IPresentation[]>) => {
-          state.loading = false;
-          state.presentations = action.payload;
-        }
-      )
+      .addCase(fetchMyPresentations.fulfilled, (state, action) => {
+        state.loading = false;
+        state.presentations = action.payload;
+      })
       .addCase(fetchMyPresentations.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload ?? "Failed to fetch presentations";
+        state.error = action.payload ?? "Failed to fetch my presentations";
       })
 
       // FETCH BY ID
@@ -199,13 +189,10 @@ const presentationsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        fetchPresentationById.fulfilled,
-        (state, action: PayloadAction<IPresentation>) => {
-          state.loading = false;
-          state.currentPresentation = action.payload;
-        }
-      )
+      .addCase(fetchPresentationById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentPresentation = action.payload;
+      })
       .addCase(fetchPresentationById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Failed to fetch presentation";
@@ -214,64 +201,57 @@ const presentationsSlice = createSlice({
       // CREATE
       .addCase(createPresentation.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(
-        createPresentation.fulfilled,
-        (state, action: PayloadAction<IPresentation>) => {
-          state.loading = false;
-          state.presentations.push(action.payload);
-        }
-      )
+      .addCase(createPresentation.fulfilled, (state, action) => {
+        state.loading = false;
+        state.presentations.push(action.payload);
+      })
       .addCase(createPresentation.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Failed to create presentation";
       })
 
       // UPDATE
-      .addCase(
-        updatePresentation.fulfilled,
-        (state, action: PayloadAction<IPresentation>) => {
-          state.presentations = state.presentations.map((p) =>
-            p._id === action.payload._id ? action.payload : p
-          );
-        }
-      )
+      .addCase(updatePresentation.fulfilled, (state, action) => {
+        state.presentations = state.presentations.map((p) =>
+          p._id === action.payload._id ? action.payload : p
+        );
+      })
 
       // DELETE
-      .addCase(
-        deletePresentation.fulfilled,
-        (state, action: PayloadAction<string>) => {
-          state.presentations = state.presentations.filter(
-            (p) => p._id !== action.payload
-          );
-        }
-      );
+      .addCase(deletePresentation.fulfilled, (state, action) => {
+        state.presentations = state.presentations.filter(
+          (p) => p._id !== action.payload
+        );
+      });
   },
 });
 
-// Memoized selectors
+// -------------------------------------------------------------
+// SELECTORS (CORRECTED)
+// -------------------------------------------------------------
 export const selectPresentations = createSelector(
   (state: RootState) => state.presentations,
-  (presentationsState) => presentationsState?.presentations ?? []
+  (s) => s.presentations
 );
 
 export const selectCurrentPresentation = createSelector(
   (state: RootState) => state.presentations,
-  (presentationsState) => presentationsState?.currentPresentation ?? null
+  (s) => s.currentPresentation ?? null
 );
 
 export const selectPresentationsLoading = createSelector(
   (state: RootState) => state.presentations,
-  (presentationsState) => presentationsState?.loading ?? false
+  (s) => s.loading
 );
 
 export const selectPresentationsError = createSelector(
   (state: RootState) => state.presentations,
-  (presentationsState) => presentationsState?.error ?? null
+  (s) => s.error
 );
 
 // -------------------------------------------------------------
 export const { clearCurrentPresentation, clearError } =
   presentationsSlice.actions;
+
 export default presentationsSlice.reducer;
