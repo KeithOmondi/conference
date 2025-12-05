@@ -230,6 +230,7 @@ const presentationsSlice = createSlice({
 // -------------------------------------------------------------
 // SELECTORS (CORRECTED)
 // -------------------------------------------------------------
+// Memoized selectors
 export const selectPresentations = createSelector(
   (state: RootState) => state.presentations,
   (s) => s.presentations
@@ -237,7 +238,7 @@ export const selectPresentations = createSelector(
 
 export const selectCurrentPresentation = createSelector(
   (state: RootState) => state.presentations,
-  (s) => s.currentPresentation ?? null
+  (s) => s.currentPresentation
 );
 
 export const selectPresentationsLoading = createSelector(
@@ -249,6 +250,7 @@ export const selectPresentationsError = createSelector(
   (state: RootState) => state.presentations,
   (s) => s.error
 );
+
 
 // -------------------------------------------------------------
 export const { clearCurrentPresentation, clearError } =
