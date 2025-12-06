@@ -1,24 +1,9 @@
 import logo from "../assets/judiciary-logo.jfif";
-import Calendar from "react-calendar";
-import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import type { AppDispatch, RootState } from "../store/store";
-import {
-  fetchProgramme,
-  selectProgramme,
-} from "../store/slices/programSlice";
-import "./Calendar.css";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store/store";
 
 const HomePage = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
-  const { data: programmeDays } = useSelector(selectProgramme);
-
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
-  useEffect(() => {
-    dispatch(fetchProgramme());
-  }, [dispatch]);
 
   if (!user) {
     return (
@@ -29,11 +14,6 @@ const HomePage = () => {
   }
 
   const firstLetter = user?.name?.charAt(0) ?? "?";
-
-  // Convert programme dates into a fast set for highlighting
-  const programmeDates = new Set(
-    programmeDays.map((p) => new Date(p.date).toDateString())
-  );
 
   return (
     <div className="min-h-screen bg-gray-100 relative flex flex-col">
@@ -71,25 +51,14 @@ const HomePage = () => {
           {user.station && <p className="text-gray-600 text-sm mt-1">{user.station}</p>}
         </div>
 
-        {/* CALENDAR SECTION */}
-        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-4 mx-auto relative z-10">
-          <h3 className="text-lg font-semibold text-[#005A2B] mb-3 text-center">
-            Your Calendar
+        {/* Welcome Message Section */}
+        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 mx-auto relative z-10 text-center">
+          <h3 className="text-2xl md:text-3xl font-extrabold text-[#005A2B] mb-4">
+            WELCOME TO THE ANNUAL HUMAN RIGHTS SUMMIT
           </h3>
-
-          <Calendar
-            onChange={(value) => setSelectedDate(value as Date)}
-            value={selectedDate}
-            className="react-calendar w-full"
-            tileContent={({ date, view }) =>
-              view === "month" &&
-              programmeDates.has(date.toDateString()) ? (
-                <div className="flex justify-center mt-1">
-                  <span className="w-2 h-2 bg-[#C6A64F] rounded-full"></span>
-                </div>
-              ) : null
-            }
-          />
+          <p className="text-gray-700 text-lg md:text-xl">
+            PLEASE DO ENJOY YOUR STAY
+          </p>
         </div>
       </div>
     </div>
