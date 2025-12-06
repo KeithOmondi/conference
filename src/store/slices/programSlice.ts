@@ -6,9 +6,10 @@ import type { RootState } from "../store";
 // -------------------- TYPES --------------------
 
 export interface ProgrammeItem {
-  time: string;
+  time?: string;           // optional now
   activity: string;
-  facilitator: string;
+  facilitator?: string;
+  isSession?: boolean;     // NEW
 }
 
 export interface ProgrammeDay {

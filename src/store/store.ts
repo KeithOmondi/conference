@@ -2,14 +2,16 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
 import programmeReducer from "./slices/programSlice";
 import presenterReducer from "./slices/presenterSlice";
-import presentationsReducer from "./slices/presentationSlice"
+import presentationsReducer from "./slices/presentationSlice";
+import presenterBiosReducer from "./slices/presenterBioSlice"
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     programme: programmeReducer,
     presenter: presenterReducer,
-    presentation: presentationsReducer
+    presentations: presentationsReducer,
+    presenterBios: presenterBiosReducer
   },
 });
 

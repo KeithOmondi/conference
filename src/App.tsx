@@ -14,6 +14,7 @@ import AdminProgramme from "./pages/Admin/AdminProgramme";
 import AdminUsers from "./pages/Admin/AdminUsers";
 import MessagesPage from "./pages/MessagesPage";
 import AdminPresentations from "./pages/Admin/AdminPresentations";
+import PresenterDetailsPage from "./pages/PresenterDetailsPage";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
                   <Route path="/schedule" element={<Schedule />} />
                   <Route path="/presentation" element={<MessagesPage />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/settings/:id" element={<PresenterDetailsPage />} />
                 </Routes>
               </MobileLayout>
             </PrivateRoute>
