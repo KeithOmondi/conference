@@ -1,160 +1,139 @@
 // src/pages/SchedulePage.tsx
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../store/store";
+import type { AppDispatch } from "../store/store";
 import {
   fetchProgramme,
   selectProgramme,
   type ProgrammeDay,
-  type ProgrammeItem,
+  type ISession,
+  type IActivity,
 } from "../store/slices/programSlice";
-import { parse, format } from "date-fns";
-import { MdSchedule, MdStar, MdAccessTime, MdPeople } from 'react-icons/md';
+import { format, parseISO } from "date-fns";
+import { MdCalendarToday, MdAccessTime, MdPeople, MdStar } from 'react-icons/md';
+
+// COLORS
+const PRIMARY_GREEN = "#005A2B";
+const ACCENT_GOLD = "#C6A64F";
+const LIGHT_GREEN = "rgba(0, 90, 43, 0.05)"; // Subtle background for days/sessions
 
 const SchedulePage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { data: days, loading, error } = useSelector((state: RootState) =>
-    selectProgramme(state)
-  );
+  const { data, loading, error } = useSelector(selectProgramme);
 
   useEffect(() => {
     dispatch(fetchProgramme());
   }, [dispatch]);
 
-  if (loading) return <p className="text-[#005A2B] font-semibold p-4">Loading programme...</p>;
-  if (error) return <p className="text-red-600 font-semibold p-4">Error: {error}</p>;
-
-  const formatDayTitle = (day: ProgrammeDay, index: number) => {
-    const cleanedDate = day.date
-      .replace(/^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday),\s*/, "")
-      .replace(/(\d+)(st|nd|rd|th)/, "$1");
-
-    const dateObj = parse(cleanedDate, "d MMMM yyyy", new Date());
-    const dayName = format(dateObj, "EEEE");
-    return `Day ${index + 1}: ${dayName}, ${format(dateObj, "d MMMM yyyy")}`;
+  const formatDate = (dateStr: string) => {
+    try {
+      // Use full date format for official look
+      return format(parseISO(dateStr), "EEEE, dd MMMM yyyy");
+    } catch {
+      return dateStr;
+    }
   };
 
-  // COLORS
-  const gold = "#C6A64F";
-  const darkGreen = "#005A2B";
-  // Subtle colors for enhanced readability
-  const lightGreen = "rgba(0, 90, 43, 0.1)"; // 10% opacity of darkGreen for Session Chair box
-  const lightGold = "rgba(198, 166, 79, 0.1)"; // 10% opacity of gold for Secretariat items
-
-  // Filter items to count only non-session items for alternating background logic
-  const getNonSessionIndex = (dayItems: ProgrammeItem[], currentIndex: number): number => {
-    return dayItems
-      .slice(0, currentIndex + 1)
-      .filter(item => !item.isSession)
-      .length;
-  };
+  if (loading) return <p className="text-xl font-semibold p-6" style={{ color: PRIMARY_GREEN }}>Loading programme...</p>;
+  
+  // Custom Error Block
+  if (error) return (
+    <div className="p-6">
+        <p className="text-red-600 font-medium bg-red-100 p-4 rounded-lg border border-red-300">
+            Error loading programme: {error}
+        </p>
+    </div>
+  );
 
   return (
-    <div className="space-y-10 pb-20 p-4">
-      <h2 className="text-4xl font-extrabold mb-4 border-b-4 pb-2" style={{ color: darkGreen, borderColor: gold }}>
-        <MdSchedule className="inline-block mr-2 align-top" size={32} /> Annual Human Rights Summit Programme
-      </h2>
+    <div className="w-full max-w-5xl mx-auto p-4 md:p-8">
+      {/* Main Header */}
+      <h1 className="text-4xl font-extrabold mb-8 pb-3 border-b-4" style={{ color: PRIMARY_GREEN, borderColor: ACCENT_GOLD }}>
+        <MdCalendarToday className="inline-block mr-2 align-top" size={32} /> Official Event Programme
+      </h1>
 
-      {days.map((day, idx) => (
-        <div
-          key={day._id}
-          className="shadow-xl rounded-xl border border-gray-200 bg-white overflow-hidden"
-        >
-          {/* Day Header */}
-          <div
-            className="px-6 py-4 text-white font-extrabold text-xl flex items-center"
-            style={{ backgroundColor: darkGreen }}
-          >
-            {formatDayTitle(day, idx)}
-          </div>
+      {/* Empty State */}
+      {!loading && !error && data.length === 0 && (
+        <p className="text-gray-600 italic p-4 bg-gray-50 rounded-lg">No programme data available.</p>
+      )}
 
-          <div className="p-6 relative">
-            {/* Timeline Connector Line */}
-            <div className="hidden md:block absolute left-6 top-0 bottom-0 w-0.5" style={{ backgroundColor: gold, opacity: 0.3 }}></div>
+      {/* Programme Days */}
+      <div className="space-y-12">
+        {data.map((day: ProgrammeDay, dayIndex: number) => (
+          <div key={day._id}>
+            {/* Day Header Block */}
+            <div 
+                className="p-4 mb-6 rounded-lg shadow-md border-l-8" 
+                style={{ backgroundColor: LIGHT_GREEN, borderColor: ACCENT_GOLD }}
+            >
+              <h2 className="text-2xl font-black mb-1 tracking-wide" style={{ color: PRIMARY_GREEN }}>
+                {day.dayLabel || `DAY ${dayIndex + 1}`}
+              </h2>
+              <p className="text-gray-700 font-medium text-sm">
+                {formatDate(day.date)}
+              </p>
+            </div>
 
-            {day.items.map((row: ProgrammeItem, i) => {
-              const nonSessionIndex = getNonSessionIndex(day.items, i);
-              // Use non-session index for alternating color of standard items
-              const isEven = nonSessionIndex % 2 === 0; 
-              
-              const isSecretariat = row.facilitator?.toLowerCase().includes("secretariat");
-              
-              if (row.isSession) {
-                return (
-                  // -------------------------------------------
-                  // SESSION HEADER STYLE (Enhanced distinction)
-                  // -------------------------------------------
-                  <div key={i} className="relative mt-8 mb-4">
-                    {/* Timeline Dot for Session Start */}
-                    <div className="hidden md:block absolute -left-[27px] top-0 h-4 w-4 rounded-full border-4 border-white z-10" style={{ backgroundColor: gold, borderColor: gold }} />
+            {/* Sessions Grid (Optional: Use grid if sessions can be side-by-side) */}
+            <div className="space-y-8 pl-4 border-l-2" style={{ borderColor: PRIMARY_GREEN }}>
+              {day.sessions.map((session: ISession, sessionIndex: number) => (
+                <div key={sessionIndex} className="relative">
+                    {/* Session Timeline Dot */}
+                    <div 
+                        className="absolute -left-[11px] top-1 h-5 w-5 rounded-full z-10 border-4 border-white" 
+                        style={{ backgroundColor: PRIMARY_GREEN, borderColor: ACCENT_GOLD }} 
+                    />
 
-                    <div className="border-l-4 pl-4 py-3 bg-gray-50/50 rounded-r-lg shadow-inner" style={{ borderColor: gold }}>
-                      <h4
-                        className="font-extrabold text-xl flex items-center"
-                        style={{ color: darkGreen }}
-                      >
-                        <MdStar className="mr-2" style={{ color: gold }} /> {row.activity}
-                      </h4>
-                      
-                      {/* Session Chair: Centered with light green background */}
-                      {row.facilitator && (
-                        <div 
-                          className="text-sm mt-3 py-2 px-4 rounded-lg font-bold text-center border-l-4" 
-                          style={{ backgroundColor: lightGreen, color: darkGreen, borderColor: gold }}
-                        >
-                            <p className="font-light italic text-xs mb-0.5">Session Chair:</p>
-                            <p className="font-extrabold">{row.facilitator}</p>
-                        </div>
-                      )}
+                    {/* Session Header */}
+                    <div className="mb-4 pt-0.5 pb-2">
+                        <h3 className="text-xl font-extrabold flex items-center" style={{ color: PRIMARY_GREEN }}>
+                            <MdStar className="mr-2" style={{ color: ACCENT_GOLD }} /> {session.title}
+                        </h3>
+                        {session.chair && (
+                            <p className="text-sm font-semibold italic ml-7 mt-1 text-gray-700">
+                                Session Chair: <span className="text-gray-900 font-bold">{session.chair}</span>
+                            </p>
+                        )}
                     </div>
-                  </div>
-                );
-              }
 
-              // -------------------------------------------
-              // NORMAL ITEM STYLE (TIME ➝ ACTIVITY ➝ FACILITATOR)
-              // -------------------------------------------
-              return (
-                <div
-                  key={i}
-                  className={`relative flex flex-col md:flex-row md:items-start md:gap-6 py-4 transition-colors 
-                    ${isSecretariat ? '' : (isEven ? 'bg-gray-50' : 'bg-white')}
-                    ${isSecretariat ? 'border-b-4 border-dotted border-gray-300' : 'border-b border-gray-100'}
-                  `}
-                  // Secretariat items use a light gold background
-                  style={{ backgroundColor: isSecretariat ? lightGold : undefined }}
-                >
-                  {/* Timeline Dot for Normal Item */}
-                  <div 
-                    className="hidden md:block absolute -left-6 top-4 h-3 w-3 rounded-full border-2 border-white z-10" 
-                    style={{ backgroundColor: isSecretariat ? gold : darkGreen }} 
-                  />
+                    {/* Activities List */}
+                    <div className="space-y-2 border-l-4 ml-6 pl-4" style={{ borderColor: ACCENT_GOLD, opacity: 0.5 }}>
+                        {session.activities.map(
+                            (activity: IActivity, activityIndex: number) => (
+                                <div
+                                    key={activityIndex}
+                                    className="p-3 rounded-lg transition-colors hover:bg-gray-50"
+                                >
+                                    <div className="flex justify-between items-start gap-4">
+                                        {/* Activity Info */}
+                                        <div className="flex-1">
+                                            <h4 className="text-base font-semibold text-gray-900">
+                                                {activity.activity}
+                                            </h4>
+                                            {activity.facilitator && (
+                                                <p className="text-xs text-gray-600 mt-1 flex items-center">
+                                                    <MdPeople className="mr-1" size={14} /> {activity.facilitator}
+                                                </p>
+                                            )}
+                                        </div>
 
-                  {/* Time Block */}
-                  <div className="w-full md:w-40 font-bold text-gray-800 text-sm flex items-center">
-                    <MdAccessTime className="w-4 h-4 mr-2 hidden md:inline-block" style={{ color: gold }} />
-                    {row.time || "TBC"}
-                  </div>
-
-                  {/* Activity + Facilitator Block */}
-                  <div className="flex-1 mt-1 md:mt-0">
-                    <p className="font-semibold text-gray-900">{row.activity}</p>
-                    {row.facilitator && row.facilitator !== "-" && (
-                      <p 
-                        className="text-sm mt-1 flex items-center"
-                        style={{ color: isSecretariat ? darkGreen : 'rgb(75 85 99)' }} // Darker text for Secretariat 
-                      >
-                        {isSecretariat && <MdPeople className="mr-1 w-4 h-4" />}
-                        {row.facilitator}
-                      </p>
-                    )}
-                  </div>
+                                        {/* Time Block */}
+                                        {activity.time && (
+                                            <div className="text-sm font-bold text-right py-0.5 px-2 rounded-full text-white" style={{ backgroundColor: ACCENT_GOLD }}>
+                                                <MdAccessTime className="inline-block mr-1 align-text-bottom" />{activity.time}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )
+                        )}
+                    </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };

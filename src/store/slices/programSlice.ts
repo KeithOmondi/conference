@@ -1,22 +1,33 @@
-// src/store/slices/programSlice.ts
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 import axios from "../../api/axios";
 import type { RootState } from "../store";
 
-// -------------------- TYPES --------------------
+/* ---------------------------------------------
+   TYPES TO MATCH BACKEND (ProgrammeDay model)
+   --------------------------------------------- */
 
-export interface ProgrammeItem {
-  time?: string;           // optional now
+// Activity
+export interface IActivity {
+  time: string;
   activity: string;
   facilitator?: string;
-  isSession?: boolean;     // NEW
 }
 
+// Session
+export interface ISession {
+  title: string;
+  chair?: string;
+  activities: IActivity[];
+}
+
+// ProgrammeDay (valid shape)
 export interface ProgrammeDay {
   _id: string;
-  day: string;
-  date: string;
-  items: ProgrammeItem[];
+  dayLabel: string;
+  date: string;      // string from server (ISO)
+  sessions: ISession[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface ProgrammeState {
@@ -25,7 +36,9 @@ interface ProgrammeState {
   error: string | null;
 }
 
-// -------------------- INITIAL STATE --------------------
+/* ---------------------------------------------
+   INITIAL STATE
+   --------------------------------------------- */
 
 const initialState: ProgrammeState = {
   data: [],
@@ -33,7 +46,9 @@ const initialState: ProgrammeState = {
   error: null,
 };
 
-// -------------------- ASYNC THUNKS --------------------
+/* ---------------------------------------------
+   ASYNC THUNKS
+   --------------------------------------------- */
 
 // Fetch all programme days
 export const fetchProgramme = createAsyncThunk<
@@ -67,7 +82,7 @@ export const fetchProgrammeById = createAsyncThunk<
   }
 });
 
-// Create new programme day
+// Create programme day
 export const createProgrammeDay = createAsyncThunk<
   ProgrammeDay,
   Partial<ProgrammeDay>,
@@ -115,7 +130,9 @@ export const deleteProgrammeDay = createAsyncThunk<
   }
 });
 
-// -------------------- SLICE --------------------
+/* ---------------------------------------------
+   SLICE
+   --------------------------------------------- */
 
 const programmeSlice = createSlice({
   name: "programme",
@@ -124,7 +141,7 @@ const programmeSlice = createSlice({
   extraReducers: (builder) => {
     const defaultError = "Something went wrong";
 
-    // Fetch all
+    /* FETCH ALL */
     builder.addCase(fetchProgramme.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -141,7 +158,7 @@ const programmeSlice = createSlice({
       state.error = action.payload || defaultError;
     });
 
-    // Fetch by ID
+    /* FETCH BY ID */
     builder.addCase(fetchProgrammeById.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -160,7 +177,7 @@ const programmeSlice = createSlice({
       state.error = action.payload || defaultError;
     });
 
-    // Create
+    /* CREATE */
     builder.addCase(createProgrammeDay.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -177,7 +194,7 @@ const programmeSlice = createSlice({
       state.error = action.payload || defaultError;
     });
 
-    // Update
+    /* UPDATE */
     builder.addCase(updateProgrammeDay.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -195,7 +212,7 @@ const programmeSlice = createSlice({
       state.error = action.payload || defaultError;
     });
 
-    // Delete
+    /* DELETE */
     builder.addCase(deleteProgrammeDay.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -214,8 +231,12 @@ const programmeSlice = createSlice({
   },
 });
 
-// -------------------- SELECTOR --------------------
+/* ---------------------------------------------
+   SELECTOR
+   --------------------------------------------- */
 export const selectProgramme = (state: RootState) => state.programme;
 
-// -------------------- EXPORT --------------------
+/* ---------------------------------------------
+   EXPORT
+   --------------------------------------------- */
 export default programmeSlice.reducer;
