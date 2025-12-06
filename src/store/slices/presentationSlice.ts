@@ -1,7 +1,6 @@
 import {
   createSlice,
   createAsyncThunk,
-  createSelector,
 } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
 import api from "../../api/axios";
@@ -230,26 +229,19 @@ const presentationsSlice = createSlice({
 // -------------------------------------------------------------
 // SELECTORS (CORRECTED)
 // -------------------------------------------------------------
-// Memoized selectors
-export const selectPresentations = createSelector(
-  (state: RootState) => state.presentations,
-  (s) => s.presentations
-);
+// SAFE selectors
+export const selectPresentations = (state: RootState) =>
+  state.presentations?.presentations ?? [];
 
-export const selectCurrentPresentation = createSelector(
-  (state: RootState) => state.presentations,
-  (s) => s.currentPresentation
-);
+export const selectCurrentPresentation = (state: RootState) =>
+  state.presentations?.currentPresentation ?? null;
 
-export const selectPresentationsLoading = createSelector(
-  (state: RootState) => state.presentations,
-  (s) => s.loading
-);
+export const selectPresentationsLoading = (state: RootState) =>
+  state.presentations?.loading ?? false;
 
-export const selectPresentationsError = createSelector(
-  (state: RootState) => state.presentations,
-  (s) => s.error
-);
+export const selectPresentationsError = (state: RootState) =>
+  state.presentations?.error ?? null;
+
 
 
 // -------------------------------------------------------------
