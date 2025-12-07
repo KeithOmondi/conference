@@ -1,13 +1,8 @@
-import {
-  createSlice,
-  createAsyncThunk,
-} from "@reduxjs/toolkit";
+// src/store/slices/presentationSlice.ts
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
 import api from "../../api/axios";
 
-// -------------------------------------------------------------
-// TYPES
-// -------------------------------------------------------------
 export interface IPresentation {
   _id: string;
   title: string;
@@ -33,6 +28,7 @@ export interface IPresentation {
 interface PresentationState {
   presentations: IPresentation[];
   currentPresentation?: IPresentation;
+  downloadUrl?: string | null;
   loading: boolean;
   error?: string | null;
 }
@@ -40,6 +36,7 @@ interface PresentationState {
 const initialState: PresentationState = {
   presentations: [],
   currentPresentation: undefined,
+  downloadUrl: null,
   loading: false,
   error: null,
 };
@@ -87,42 +84,62 @@ export const fetchPresentationById = createAsyncThunk<
   }
 });
 
+// NEW: Fetch signed Cloudinary URL for download
+export const fetchPresentationDownloadUrl = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string }
+>("presentations/fetchDownloadUrl", async (id, { rejectWithValue }) => {
+  try {
+    const { data } = await api.get(`/presentations/download/${id}`);
+    return data.url;
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data?.message || err.message);
+  }
+});
+
 // CREATE
 export const createPresentation = createAsyncThunk<
   IPresentation,
   { title: string; description?: string; presenterId: string; file: File },
   { rejectValue: string }
->("presentations/create", async ({ title, description, presenterId, file }, { rejectWithValue }) => {
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("title", title);
-    formData.append("description", description || "");
-    formData.append("presenterId", presenterId);
+>(
+  "presentations/create",
+  async ({ title, description, presenterId, file }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("title", title);
+      formData.append("description", description || "");
+      formData.append("presenterId", presenterId);
 
-    const { data } = await api.post("/presentations/create", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+      const { data } = await api.post("/presentations/create", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-    return data.presentation;
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data?.message || err.message);
+      return data.presentation;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
   }
-});
+);
 
 // UPDATE
 export const updatePresentation = createAsyncThunk<
   IPresentation,
   { id: string; updates: Partial<IPresentation> },
   { rejectValue: string }
->("presentations/update", async ({ id, updates }, { rejectWithValue }) => {
-  try {
-    const { data } = await api.patch(`/presentations/update/${id}`, updates);
-    return data.presentation;
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data?.message || err.message);
+>(
+  "presentations/update",
+  async ({ id, updates }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.patch(`/presentations/update/${id}`, updates);
+      return data.presentation;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
   }
-});
+);
 
 // DELETE
 export const deletePresentation = createAsyncThunk<
@@ -148,6 +165,7 @@ const presentationsSlice = createSlice({
     clearCurrentPresentation(state) {
       state.currentPresentation = undefined;
       state.error = null;
+      state.downloadUrl = null;
     },
     clearError(state) {
       state.error = null;
@@ -197,9 +215,26 @@ const presentationsSlice = createSlice({
         state.error = action.payload ?? "Failed to fetch presentation";
       })
 
+      // FETCH DOWNLOAD URL
+      .addCase(fetchPresentationDownloadUrl.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.downloadUrl = null;
+      })
+      .addCase(fetchPresentationDownloadUrl.fulfilled, (state, action) => {
+        state.loading = false;
+        state.downloadUrl = action.payload;
+      })
+      .addCase(fetchPresentationDownloadUrl.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ?? "Failed to fetch download URL";
+        state.downloadUrl = null;
+      })
+
       // CREATE
       .addCase(createPresentation.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(createPresentation.fulfilled, (state, action) => {
         state.loading = false;
@@ -227,24 +262,19 @@ const presentationsSlice = createSlice({
 });
 
 // -------------------------------------------------------------
-// SELECTORS (CORRECTED)
+// SELECTORS
 // -------------------------------------------------------------
-// SAFE selectors
 export const selectPresentations = (state: RootState) =>
   state.presentations?.presentations ?? [];
-
 export const selectCurrentPresentation = (state: RootState) =>
   state.presentations?.currentPresentation ?? null;
-
+export const selectPresentationDownloadUrl = (state: RootState) =>
+  state.presentations?.downloadUrl ?? null;
 export const selectPresentationsLoading = (state: RootState) =>
   state.presentations?.loading ?? false;
-
 export const selectPresentationsError = (state: RootState) =>
   state.presentations?.error ?? null;
 
-
-
-// -------------------------------------------------------------
 export const { clearCurrentPresentation, clearError } =
   presentationsSlice.actions;
 

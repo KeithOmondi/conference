@@ -81,7 +81,7 @@ dispatch(fetchAllPresentations());
 return ( <div className="p-4 sm:p-6"> <h1 className="text-3xl font-extrabold mb-8 text-[#005A2B] border-b-4 border-[#C6A64F] pb-2">
 📂 Manage Presentations </h1>
 
-```
+
   {/* New Presentation Form */}
   <div className="mb-10 bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
     <h2 className="text-xl font-bold p-4 bg-gray-100 text-[#005A2B] border-b border-gray-200 flex items-center">

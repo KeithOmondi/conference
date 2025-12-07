@@ -72,7 +72,7 @@ const SchedulePage = () => {
         className="text-4xl font-extrabold mb-8 pb-3 border-b-4"
         style={{ color: PRIMARY_GREEN, borderColor: ACCENT_GOLD }}
       >
-        <MdCalendarToday className="inline-block mr-2 align-top" size={32} /> 
+        <MdCalendarToday className="inline-block mr-2 align-top" size={25} /> 
         Official Event Programme
       </h1>
 
