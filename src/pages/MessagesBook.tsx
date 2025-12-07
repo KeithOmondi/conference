@@ -315,7 +315,7 @@ pages.push(
         className="h-15 w-15 rounded object-contain"
       />
       <img
-        src="https://res.cloudinary.com/drls2cpnu/image/upload/v1765091659/Judiciary_fvmtwj.png"
+        src="https://res.cloudinary.com/drls2cpnu/image/upload/v1765116373/The_Jud_rmzqa7.png"
         alt="Judiciary Logo"
         className="h-10 object-contain"
       />
@@ -371,14 +371,68 @@ pages.push(
         });
       });
 
-      // End page
-      pages.push(
-        <div key="end" className="flex flex-col justify-center items-center h-full text-white text-center p-8">
-          <h2 className="text-3xl font-extrabold mb-4 border-b-2 pb-2" style={{ borderColor: ACCENT_GOLD }}>END OF BRIEFING</h2>
-          <p className="text-lg font-light italic mt-4">Thank you for the presentation.</p>
-          {image && <img src={image} alt="Event Logo" className="w-24 h-24 rounded-full border-4 my-4 object-cover" style={{ borderColor: ACCENT_GOLD }} />}
-        </div>
-      );
+      // End page with watermarked background
+pages.push(
+  <div
+    key="end"
+    className="relative flex flex-col justify-center items-center h-full text-center p-16"
+    style={{
+      color: "white",
+      backgroundColor: PRIMARY_GREEN,
+      overflow: "hidden",
+    }}
+  >
+    {/* Watermarked background image */}
+    {image && (
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url("https://res.cloudinary.com/drls2cpnu/image/upload/v1765116373/The_Jud_rmzqa7.png")`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          opacity: 0.1, // watermark strength
+          filter: "blur(1px)", // softer watermark
+        }}
+      />
+    )}
+
+    {/* Gold frame */}
+    <div
+      className="absolute inset-6 rounded-xl pointer-events-none"
+      style={{
+        border: `3px solid ${ACCENT_GOLD}`,
+      }}
+    ></div>
+
+    {/* Content */}
+    <h2
+      className="text-4xl font-extrabold mb-4 tracking-wide relative z-10"
+      style={{ color: ACCENT_GOLD }}
+    >
+      END OF BRIEFING
+    </h2>
+
+    <p className="text-xl font-light italic mb-8 opacity-90 relative z-10">
+      Thank you for your participation.
+    </p>
+
+    {/* Main logo centered */}
+    {image && (
+      <img
+        src={image}
+        alt="Event Logo"
+        className="w-32 h-32 rounded-full border-4 shadow-xl object-cover relative z-10"
+        style={{ borderColor: ACCENT_GOLD }}
+      />
+    )}
+
+    {/* Footer text */}
+    <p className="absolute bottom-10 text-sm opacity-80 tracking-wide z-10">
+      © Judiciary of Kenya — High Court Summit
+    </p>
+  </div>
+);
+
 
       return pages;
     },

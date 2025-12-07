@@ -15,6 +15,7 @@ export interface User {
   email: string;
   station?: string;
   role: "judge" | "admin";
+  img?: string
 }
 
 interface AuthState {
