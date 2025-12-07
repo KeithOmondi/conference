@@ -129,17 +129,14 @@ export const updatePresentation = createAsyncThunk<
   IPresentation,
   { id: string; updates: Partial<IPresentation> },
   { rejectValue: string }
->(
-  "presentations/update",
-  async ({ id, updates }, { rejectWithValue }) => {
-    try {
-      const { data } = await api.patch(`/presentations/update/${id}`, updates);
-      return data.presentation;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
-    }
+>("presentations/update", async ({ id, updates }, { rejectWithValue }) => {
+  try {
+    const { data } = await api.patch(`/presentations/update/${id}`, updates);
+    return data.presentation;
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data?.message || err.message);
   }
-);
+});
 
 // DELETE
 export const deletePresentation = createAsyncThunk<
@@ -271,7 +268,8 @@ export const selectCurrentPresentation = (state: RootState) =>
 export const selectPresentationDownloadUrl = (state: RootState) =>
   state.presentations?.downloadUrl ?? null;
 export const selectPresentationsLoading = (state: RootState) =>
-  state.presentations?.loading ?? false;
+  state.presentations.loading;
+
 export const selectPresentationsError = (state: RootState) =>
   state.presentations?.error ?? null;
 
