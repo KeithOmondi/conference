@@ -223,7 +223,6 @@ const paginateHtmlByHeight = (
 
     const childNodes = Array.from(blockEl.childNodes);
     let pieceParts: string[] = [];
-    let started = false;
 
     for (const child of childNodes) {
       const elHtml = child.nodeType === Node.ELEMENT_NODE ? (child as Element).outerHTML : `<span>${child.textContent}</span>`;
