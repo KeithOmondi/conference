@@ -16,7 +16,7 @@ import {
   selectPresentationsLoading,
   type IPresentation,
 } from "../store/slices/presentationSlice";
-import { MdArrowBack, MdArrowForward, MdStar } from "react-icons/md";
+import { MdArrowBack, MdArrowForward } from "react-icons/md";
 import type { AppDispatch } from "../store/store";
 
 /* -------------------- CONFIG -------------------- */
@@ -289,19 +289,63 @@ const MessagesBook: React.FC<MessagesBookProps> = ({ image }) => {
 
       const firstPresentation = presenterPresentations[0];
       const presenterName = `${firstPresentation.presenter.firstName} ${firstPresentation.presenter.lastName}`;
-      const presenterTitle = firstPresentation.presenter.pj || "Presenter";
+      
 
       // Cover
-      pages.push(
-        <div key="cover" className="flex flex-col justify-center items-center h-full text-white text-center p-8">
-          <h1 className="text-4xl font-extrabold mb-4 border-b-4 pb-2" style={{ borderColor: ACCENT_GOLD }}>
-            {presenterName}
-          </h1>
-          <p className="text-xl font-light mb-10 italic">{presenterTitle}</p>
-          <MdStar size={48} className="my-6" style={{ color: ACCENT_GOLD }} />
-          <h2 className="text-2xl font-bold mt-4">Briefing Book</h2>
-        </div>
-      );
+      // COVER PAGE (Summit Programme Style)
+pages.push(
+  <div
+    key="cover"
+    className="relative w-full h-full overflow-hidden"
+    style={{
+      backgroundColor: "#ffffff",
+      backgroundImage: "url('https://images.pexels.com/photos/26898331/pexels-photo-26898331.jpeg')",
+      backgroundSize: "contain",
+      backgroundPosition: "center",
+    }}
+  >
+    {/* Dark overlay to improve readability */}
+    <div className="absolute inset-0 bg-black/10" />
+
+    {/* Top-right logos */}
+    <div className="absolute top-4 right-4 flex flex-col items-end space-y-2 z-20">
+      <img
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5WWCRxITt4_O0adYFIVzKuzCCqf--6Oefyg&s"
+        alt="Kenya Logo"
+        className="h-15 w-15 rounded object-contain"
+      />
+      <img
+        src="https://res.cloudinary.com/drls2cpnu/image/upload/v1765091659/Judiciary_fvmtwj.png"
+        alt="Judiciary Logo"
+        className="h-10 object-contain"
+      />
+    </div>
+
+    {/* Main Title */}
+    <div className="absolute left-6 top-1/4 z-20 w-[70%]">
+      <div className="flex flex-col">
+        <h3
+          className="text-sm font-bold tracking-wide mb-2 px-2 py-1 bg-[#0A3A66] text-white w-max"
+        >
+          HIGH COURT OF KENYA
+        </h3>
+
+        <h1 className="text-3xl font-extrabold leading-tight text-white drop-shadow-lg">
+          ANNUAL <br />
+          HUMAN RIGHTS <br />
+          SUMMIT 2025
+        </h1>
+
+        <p className="text-sm font-semibold text-white mt-3">
+          8TH – 10TH DECEMBER 2025
+        </p>
+      </div>
+    </div>
+
+   
+  </div>
+);
+
 
       const contentHeight = FLIPBOOK_HEIGHT - PAGE_PADDING * 2 - FOOTER_HEIGHT - 8;
 
