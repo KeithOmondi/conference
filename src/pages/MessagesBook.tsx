@@ -375,44 +375,62 @@ pages.push(
 pages.push(
   <div
     key="end"
-    className="relative flex flex-col justify-center items-center h-full text-center p-16"
+    className="relative flex flex-col justify-center items-center h-full text-center p-20" // Increased padding
     style={{
       color: "white",
       backgroundColor: PRIMARY_GREEN,
       overflow: "hidden",
     }}
   >
+    {/* 🛑 New: Subtle inner shadow/gradient to make content pop */}
+    <div
+      className="absolute inset-0"
+      style={{
+        background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0) 70%)',
+      }}
+    ></div>
+
     {/* Watermarked background image */}
     {image && (
       <div
         className="absolute inset-0"
         style={{
           backgroundImage: `url("https://res.cloudinary.com/drls2cpnu/image/upload/v1765116373/The_Jud_rmzqa7.png")`,
+          backgroundRepeat: 'no-repeat',
           backgroundSize: "cover",
           backgroundPosition: "center",
-          opacity: 0.1, // watermark strength
-          filter: "blur(1px)", // softer watermark
+          opacity: 0.15, // Slightly stronger watermark
+          filter: "blur(1px)",
+          transform: 'scale(1.1)', // Ensure it covers the edge
         }}
       />
     )}
 
-    {/* Gold frame */}
+    {/* Gold frame (Thicker border) */}
     <div
-      className="absolute inset-6 rounded-xl pointer-events-none"
+      className="absolute inset-4 rounded-xl pointer-events-none"
       style={{
-        border: `3px solid ${ACCENT_GOLD}`,
+        border: `4px solid ${ACCENT_GOLD}`, // Thicker border
+        boxShadow: `0 0 20px rgba(198, 166, 79, 0.5)` // Subtle gold glow
       }}
     ></div>
 
     {/* Content */}
     <h2
-      className="text-4xl font-extrabold mb-4 tracking-wide relative z-10"
-      style={{ color: ACCENT_GOLD }}
+      className="text-5xl font-black mb-2 tracking-widest uppercase relative z-10" // Larger, bolder text
+      style={{ color: ACCENT_GOLD, textShadow: '0 2px 4px rgba(0,0,0,0.4)' }}
     >
-      END OF BRIEFING
+      END
     </h2>
+    
+    {/* 🛑 New: Decorative Gold Line Separator */}
+    <div 
+        className="w-16 h-1 mb-6 relative z-10" 
+        style={{ backgroundColor: ACCENT_GOLD }} 
+    />
 
-    <p className="text-xl font-light italic mb-8 opacity-90 relative z-10">
+
+    <p className="text-xl font-light italic mb-10 opacity-90 relative z-10">
       Thank you for your participation.
     </p>
 
@@ -421,13 +439,13 @@ pages.push(
       <img
         src={image}
         alt="Event Logo"
-        className="w-32 h-32 rounded-full border-4 shadow-xl object-cover relative z-10"
+        className="w-32 h-32 rounded-full border-4 shadow-2xl object-cover relative z-10 transform transition-transform hover:scale-105"
         style={{ borderColor: ACCENT_GOLD }}
       />
     )}
 
     {/* Footer text */}
-    <p className="absolute bottom-10 text-sm opacity-80 tracking-wide z-10">
+    <p className="absolute bottom-8 text-sm opacity-80 tracking-widest font-light z-10">
       © Judiciary of Kenya — High Court Summit
     </p>
   </div>
