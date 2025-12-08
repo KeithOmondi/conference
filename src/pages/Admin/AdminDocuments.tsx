@@ -1,4 +1,3 @@
-// src/components/admin/AdminDocuments.tsx
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch } from "../../store/store";
@@ -6,6 +5,7 @@ import {
   uploadDocument,
   fetchAllDocuments,
   deleteDocument,
+  fetchDocumentSignedUrl,
   selectDocuments,
   selectDocumentsLoading,
   type IDocument,
@@ -17,7 +17,6 @@ const ACCENT_YELLOW = "#C6A64F";
 
 const AdminDocuments: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-
   const documents: IDocument[] = useSelector(selectDocuments) || [];
   const loading = useSelector(selectDocumentsLoading);
 
@@ -28,6 +27,15 @@ const AdminDocuments: React.FC = () => {
   useEffect(() => {
     dispatch(fetchAllDocuments());
   }, [dispatch]);
+
+  // Fetch signed URLs for all documents after loading metadata
+  useEffect(() => {
+    documents.forEach((doc) => {
+      if (!doc.signedUrl) {
+        dispatch(fetchDocumentSignedUrl(doc._id));
+      }
+    });
+  }, [documents, dispatch]);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,25 +71,17 @@ const AdminDocuments: React.FC = () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <h1
-        className="text-3xl font-extrabold mb-8"
-        style={{ color: PRIMARY_GREEN }}
-      >
+      <h1 className="text-3xl font-extrabold mb-8" style={{ color: PRIMARY_GREEN }}>
         🏛️ Document Repository Management
       </h1>
 
+      {/* Upload Form */}
       <form
         onSubmit={handleUpload}
         className="rounded-xl p-8 mb-12 shadow-2xl"
-        style={{
-          backgroundColor: "#F8F8F8",
-          border: `2px solid ${ACCENT_YELLOW}`,
-        }}
+        style={{ backgroundColor: "#F8F8F8", border: `2px solid ${ACCENT_YELLOW}` }}
       >
-        <h2
-          className="text-2xl font-bold mb-6"
-          style={{ color: PRIMARY_GREEN }}
-        >
+        <h2 className="text-2xl font-bold mb-6" style={{ color: PRIMARY_GREEN }}>
           Upload New Document
         </h2>
 
@@ -104,9 +104,7 @@ const AdminDocuments: React.FC = () => {
           />
 
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-700 mb-1">
-              Select File
-            </label>
+            <label className="text-sm font-medium text-gray-700 mb-1">Select File</label>
             <div className="flex items-center gap-2">
               <input
                 type="file"
@@ -116,11 +114,7 @@ const AdminDocuments: React.FC = () => {
                 required
               />
               {file && (
-                <button
-                  type="button"
-                  onClick={() => setFile(null)}
-                  className="text-red-500 hover:text-red-700 p-1"
-                >
+                <button type="button" onClick={() => setFile(null)} className="text-red-500 hover:text-red-700 p-1">
                   <X size={20} />
                 </button>
               )}
@@ -148,9 +142,7 @@ const AdminDocuments: React.FC = () => {
 
       {!loading && documents.length === 0 && (
         <div className="p-6 text-center border-dashed border-2 border-gray-300 rounded-xl bg-white">
-          <p className="text-gray-600 font-medium">
-            No documents have been uploaded yet.
-          </p>
+          <p className="text-gray-600 font-medium">No documents have been uploaded yet.</p>
         </div>
       )}
 
@@ -162,22 +154,12 @@ const AdminDocuments: React.FC = () => {
             style={{ borderColor: ACCENT_YELLOW }}
           >
             <div className="flex items-start gap-4 flex-1">
-              <FileText
-                size={40}
-                className={`flex-shrink-0 ${getFileIconColor(doc.fileUrl)}`}
-              />
+              <FileText size={40} className={`flex-shrink-0 ${getFileIconColor(doc.fileUrl)}`} />
               <div>
-                <h3
-                  className="text-xl font-bold"
-                  style={{ color: PRIMARY_GREEN }}
-                >
+                <h3 className="text-xl font-bold" style={{ color: PRIMARY_GREEN }}>
                   {doc.title}
                 </h3>
-                {doc.description && (
-                  <p className="text-gray-700 text-sm italic">
-                    {doc.description}
-                  </p>
-                )}
+                {doc.description && <p className="text-gray-700 text-sm italic">{doc.description}</p>}
                 <p className="text-gray-500 text-xs mt-1">
                   Uploaded: {new Date(doc.createdAt).toLocaleDateString()}
                 </p>
@@ -186,12 +168,14 @@ const AdminDocuments: React.FC = () => {
 
             <div className="flex items-center gap-3 mt-4 md:mt-0 flex-shrink-0">
               <a
-                href={doc.fileUrl}
+                href={doc.signedUrl || "#"}
                 target="_blank"
                 rel="noreferrer"
-                className="bg-blue-600 text-white px-4 py-2 rounded-full flex items-center gap-2 font-medium hover:bg-blue-700 transition"
+                className={`${
+                  !doc.signedUrl ? "pointer-events-none opacity-50" : ""
+                } bg-blue-600 text-white px-4 py-2 rounded-full flex items-center gap-2 font-medium hover:bg-blue-700 transition`}
               >
-                <Download size={18} /> View/Download
+                <Download size={18} /> {doc.signedUrl ? "View/Download" : "Loading..."}
               </a>
 
               <button

@@ -1,4 +1,3 @@
-// src/store/slices/documentSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState } from "../store";
 import api from "../../api/axios";
@@ -7,7 +6,8 @@ export interface IDocument {
   _id: string;
   title: string;
   description?: string;
-  fileUrl: string;
+  fileUrl: string; // store public_id, not full URL
+  signedUrl?: string; // dynamically fetched signed URL
   fileType: string;
   uploadedBy?: string;
   createdAt: string;
@@ -28,14 +28,15 @@ const initialState: DocumentState = {
   error: null,
 };
 
-// ASYNC THUNKS
+// ------------------- ASYNC THUNKS -------------------
+
+// Upload document (admin)
 export const uploadDocument = createAsyncThunk(
   "documents/uploadDocument",
   async (formData: FormData, { rejectWithValue }) => {
     try {
       const res = await api.post("/documents/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
       });
       return res.data.document;
     } catch (err: any) {
@@ -44,6 +45,7 @@ export const uploadDocument = createAsyncThunk(
   }
 );
 
+// Fetch all document metadata
 export const fetchAllDocuments = createAsyncThunk(
   "documents/fetchAll",
   async (_, { rejectWithValue }) => {
@@ -56,6 +58,7 @@ export const fetchAllDocuments = createAsyncThunk(
   }
 );
 
+// Fetch single document metadata
 export const fetchDocumentById = createAsyncThunk(
   "documents/fetchById",
   async (id: string, { rejectWithValue }) => {
@@ -68,6 +71,24 @@ export const fetchDocumentById = createAsyncThunk(
   }
 );
 
+// Fetch signed URL for a document (auth required)
+export const fetchDocumentSignedUrl = createAsyncThunk(
+  "documents/fetchSignedUrl",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/documents/url/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      return { id, signedUrl: res.data.url };
+    } catch (err: any) {
+      return rejectWithValue("Failed to fetch signed URL");
+    }
+  }
+);
+
+// Delete document (admin)
 export const deleteDocument = createAsyncThunk(
   "documents/delete",
   async (id: string, { rejectWithValue }) => {
@@ -80,7 +101,7 @@ export const deleteDocument = createAsyncThunk(
   }
 );
 
-// SLICE
+// ------------------- SLICE -------------------
 export const documentSlice = createSlice({
   name: "documents",
   initialState,
@@ -126,6 +147,25 @@ export const documentSlice = createSlice({
         state.error = action.payload as string;
       })
 
+      // Fetch signed URL
+      .addCase(fetchDocumentSignedUrl.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchDocumentSignedUrl.fulfilled, (state, action) => {
+        state.loading = false;
+        const doc = state.documents.find((d) => d._id === action.payload.id);
+        if (doc) doc.signedUrl = action.payload.signedUrl;
+        if (
+          state.singleDocument &&
+          state.singleDocument._id === action.payload.id
+        )
+          state.singleDocument.signedUrl = action.payload.signedUrl;
+      })
+      .addCase(fetchDocumentSignedUrl.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
       // Delete
       .addCase(deleteDocument.pending, (state) => {
         state.loading = true;
@@ -143,7 +183,7 @@ export const documentSlice = createSlice({
   },
 });
 
-// SELECTORS
+// ------------------- SELECTORS -------------------
 export const selectDocuments = (state: RootState) => state.documents.documents;
 export const selectSingleDocument = (state: RootState) =>
   state.documents.singleDocument;

@@ -15,12 +15,13 @@ export interface User {
   email: string;
   station?: string;
   role: "judge" | "admin";
-  img?: string
+  img?: string;
 }
 
 interface AuthState {
   user: User | null;
   token: string | null;
+  pdfUrl: string | null; // <-- signed PDF URL
   loading: boolean;
   error: string | null;
   users: User[]; // all users for admin dropdown
@@ -35,6 +36,7 @@ const storedToken = localStorage.getItem("token");
 const initialState: AuthState = {
   user: storedUser ? JSON.parse(storedUser) : null,
   token: storedToken || null,
+  pdfUrl: null,
   loading: false,
   error: null,
   users: [],
@@ -50,7 +52,7 @@ export const loginUser = createAsyncThunk(
   async ({ pj }: { pj: string }, { rejectWithValue }) => {
     try {
       const res = await api.post("/auth/login", { pj });
-      return res.data; // { message, token, user }
+      return res.data; // { message, token, user, pdfUrl }
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Login failed");
     }
@@ -76,7 +78,6 @@ export const fetchAllUsers = createAsyncThunk(
     try {
       const res = await api.post("/auth/all");
 
-      // Map backend fields to User type
       const mappedUsers: User[] = res.data.users.map((u: any) => ({
         id: u._id,
         name: `${u.firstName} ${u.lastName}`,
@@ -111,6 +112,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.pdfUrl = action.payload.pdfUrl;
 
         localStorage.setItem("user", JSON.stringify(action.payload.user));
         localStorage.setItem("token", action.payload.token);
@@ -129,6 +131,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = null;
         state.token = null;
+        state.pdfUrl = null;
         state.users = [];
 
         localStorage.removeItem("user");

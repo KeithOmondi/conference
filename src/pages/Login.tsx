@@ -9,7 +9,9 @@ const JUDGE_IMAGE_URL =
 const Login: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { loading, error, user } = useAppSelector((state) => state.auth);
+  const { loading, error, user, pdfUrl } = useAppSelector(
+    (state) => state.auth
+  );
 
   const [pjNumber, setPJNumber] = useState("");
 
@@ -18,14 +20,11 @@ const Login: React.FC = () => {
     document.getElementById("pjNumber")?.focus();
   }, []);
 
-  // Redirect based on role immediately after successful login
+  // Redirect based on role after successful login
   useEffect(() => {
     if (user) {
-      if (user.role === "admin") {
-        navigate("/admin", { replace: true });
-      } else {
-        navigate("/", { replace: true });
-      }
+      if (user.role === "admin") navigate("/admin", { replace: true });
+      else navigate("/", { replace: true });
     }
   }, [user, navigate]);
 
@@ -41,7 +40,6 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6 font-sans">
       <div className="bg-white shadow-2xl rounded-2xl w-full max-w-xl overflow-hidden border border-gray-100">
-
         {/* HEADER */}
         <div className="relative p-10 pt-16 bg-white overflow-hidden">
           <div className="relative z-10 text-center">
@@ -150,6 +148,20 @@ const Login: React.FC = () => {
               )}
             </button>
           </form>
+
+          {/* Signed PDF link */}
+          {user && pdfUrl && (
+            <div className="text-center mt-6">
+              <a
+                href={pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-[#C6A64F] text-[#005A2B] font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
+              >
+                Download Constitution PDF
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>
