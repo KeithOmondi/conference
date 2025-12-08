@@ -46,7 +46,7 @@ const UserDocuments = () => {
     >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1
-          className="text-4xl font-extrabold mb-10 text-center"
+          className="text-2xl font-extrabold mb-10 text-center"
           style={{ color: PRIMARY_GREEN }}
         >
           Resource Downloads
