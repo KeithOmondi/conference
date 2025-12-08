@@ -4,6 +4,7 @@ import programmeReducer from "./slices/programSlice";
 import presenterReducer from "./slices/presenterSlice";
 import presentationsReducer from "./slices/presentationSlice";
 import presenterBiosReducer from "./slices/presenterBioSlice"
+import documentsReducer from "./slices/documentSlice"
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     programme: programmeReducer,
     presenter: presenterReducer,
     presentations: presentationsReducer,
-    presenterBios: presenterBiosReducer
+    presenterBios: presenterBiosReducer,
+    documents: documentsReducer
   },
 });
 

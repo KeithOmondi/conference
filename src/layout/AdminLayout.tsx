@@ -21,6 +21,7 @@ const navItems = [
   { to: "/admin/presenters", icon: MdPeople, label: "Presenters" },
   { to: "/admin/presentions", icon: MdBusinessCenter, label: "Presentations" },
   { to: "/admin/programme", icon: MdSchedule, label: "Programme" },
+  { to: "/admin/documents", icon: MdSettings, label: "Documents" },
   { to: "/admin/users", icon: MdSupervisorAccount, label: "Users" },
   { to: "/admin/settings", icon: MdSettings, label: "Settings" },
 ];

@@ -15,6 +15,8 @@ import AdminUsers from "./pages/Admin/AdminUsers";
 import MessagesPage from "./pages/MessagesPage";
 import AdminPresentations from "./pages/Admin/AdminPresentations";
 import PresenterDetailsPage from "./pages/PresenterDetailsPage";
+import UserDocuments from "./pages/UserDocuments";
+import AdminDocuments from "./pages/Admin/AdminDocuments";
 
 export default function App() {
   return (
@@ -35,6 +37,7 @@ export default function App() {
                   <Route path="/presentation" element={<MessagesPage />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/settings/:id" element={<PresenterDetailsPage />} />
+                  <Route path="/documents" element={<UserDocuments />} />
                 </Routes>
               </MobileLayout>
             </PrivateRoute>
@@ -51,6 +54,7 @@ export default function App() {
                   <Route path="presenters" element={<AdminPresenters />} />
                   <Route path="presentions" element={<AdminPresentations/>} />
                   <Route path="programme" element={<AdminProgramme />} />
+                  <Route path="documents" element={<AdminDocuments />} />
                   <Route path="users" element={<AdminUsers />} />
                 </Routes>
               </AdminLayout>
