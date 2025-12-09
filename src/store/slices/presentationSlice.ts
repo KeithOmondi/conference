@@ -7,7 +7,7 @@ export interface IPresentation {
   _id: string;
   title: string;
   description?: string;
-  fileUrl: string;
+  fileUrl?: string; // may come from JSON
   presenter: {
     _id: string;
     firstName: string;
@@ -28,7 +28,6 @@ export interface IPresentation {
 interface PresentationState {
   presentations: IPresentation[];
   currentPresentation?: IPresentation;
-  downloadUrl?: string | null;
   loading: boolean;
   error?: string | null;
 }
@@ -36,7 +35,6 @@ interface PresentationState {
 const initialState: PresentationState = {
   presentations: [],
   currentPresentation: undefined,
-  downloadUrl: null,
   loading: false,
   error: null,
 };
@@ -45,6 +43,7 @@ const initialState: PresentationState = {
 // THUNKS
 // -------------------------------------------------------------
 
+// GET ALL — Admin
 export const fetchAllPresentations = createAsyncThunk<
   IPresentation[],
   void,
@@ -58,6 +57,7 @@ export const fetchAllPresentations = createAsyncThunk<
   }
 });
 
+// GET MINE — Judge
 export const fetchMyPresentations = createAsyncThunk<
   IPresentation[],
   void,
@@ -71,6 +71,7 @@ export const fetchMyPresentations = createAsyncThunk<
   }
 });
 
+// GET BY ID
 export const fetchPresentationById = createAsyncThunk<
   IPresentation,
   string,
@@ -84,45 +85,24 @@ export const fetchPresentationById = createAsyncThunk<
   }
 });
 
-// NEW: Fetch signed Cloudinary URL for download
-export const fetchPresentationDownloadUrl = createAsyncThunk<
-  string,
-  string,
+// CREATE — No file upload → JSON only
+export const createPresentation = createAsyncThunk<
+  IPresentation,
+  {
+    title: string;
+    description?: string;
+    presenterId: string;
+    fileUrl?: string;
+  },
   { rejectValue: string }
->("presentations/fetchDownloadUrl", async (id, { rejectWithValue }) => {
+>("presentations/create", async (payload, { rejectWithValue }) => {
   try {
-    const { data } = await api.get(`/presentations/download/${id}`);
-    return data.url;
+    const { data } = await api.post("/presentations/create", payload);
+    return data.presentation;
   } catch (err: any) {
     return rejectWithValue(err.response?.data?.message || err.message);
   }
 });
-
-// CREATE
-export const createPresentation = createAsyncThunk<
-  IPresentation,
-  { title: string; description?: string; presenterId: string; file: File },
-  { rejectValue: string }
->(
-  "presentations/create",
-  async ({ title, description, presenterId, file }, { rejectWithValue }) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("title", title);
-      formData.append("description", description || "");
-      formData.append("presenterId", presenterId);
-
-      const { data } = await api.post("/presentations/create", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      return data.presentation;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
-    }
-  }
-);
 
 // UPDATE
 export const updatePresentation = createAsyncThunk<
@@ -162,7 +142,6 @@ const presentationsSlice = createSlice({
     clearCurrentPresentation(state) {
       state.currentPresentation = undefined;
       state.error = null;
-      state.downloadUrl = null;
     },
     clearError(state) {
       state.error = null;
@@ -212,22 +191,6 @@ const presentationsSlice = createSlice({
         state.error = action.payload ?? "Failed to fetch presentation";
       })
 
-      // FETCH DOWNLOAD URL
-      .addCase(fetchPresentationDownloadUrl.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.downloadUrl = null;
-      })
-      .addCase(fetchPresentationDownloadUrl.fulfilled, (state, action) => {
-        state.loading = false;
-        state.downloadUrl = action.payload;
-      })
-      .addCase(fetchPresentationDownloadUrl.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload ?? "Failed to fetch download URL";
-        state.downloadUrl = null;
-      })
-
       // CREATE
       .addCase(createPresentation.pending, (state) => {
         state.loading = true;
@@ -262,16 +225,16 @@ const presentationsSlice = createSlice({
 // SELECTORS
 // -------------------------------------------------------------
 export const selectPresentations = (state: RootState) =>
-  state.presentations?.presentations ?? [];
+  state.presentations.presentations ?? [];
+
 export const selectCurrentPresentation = (state: RootState) =>
-  state.presentations?.currentPresentation ?? null;
-export const selectPresentationDownloadUrl = (state: RootState) =>
-  state.presentations?.downloadUrl ?? null;
+  state.presentations.currentPresentation ?? null;
+
 export const selectPresentationsLoading = (state: RootState) =>
   state.presentations.loading;
 
 export const selectPresentationsError = (state: RootState) =>
-  state.presentations?.error ?? null;
+  state.presentations.error ?? null;
 
 export const { clearCurrentPresentation, clearError } =
   presentationsSlice.actions;
